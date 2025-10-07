@@ -29,6 +29,7 @@
             --color-blue: #219ebc;
             --color-blue-light: #8ecae6;
             --color-white: #fff;
+            --color-black: #000;
             --color-yellow-light: #FFEF05;
             --color-yellow: #FFB703;
             --color-yellow-dark: #FB8500;
