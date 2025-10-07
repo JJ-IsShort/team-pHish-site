@@ -10,7 +10,11 @@
   "Sidebar with cool opening animation"
   `(div (:class "size-[3rem] absolute top-[3rem] right-[3rem]")
      (div (:class "relative")
-         (div (:class "border-blue-dark size-[3rem] 
+         (button (:type "button"
+                  :class "bg-blue size-[3rem]
+                  rounded-xl absolute cursor-pointer"
+                  :onclick "press_menu()"))
+         (div (:class "border-blue size-[3rem] 
                rounded-xl cursor-pointer border-8 absolute"))
          (div (:class "border-blue-light size-[3rem]
                rounded-xl border-8 absolute top-[-0.1rem] right-[0.1rem]"))))
@@ -25,9 +29,23 @@
             --color-blue: #219ebc;
             --color-blue-light: #8ecae6;
             --color-white: #fff;
+            --color-yellow-light: #FFEF05;
             --color-yellow: #FFB703;
             --color-yellow-dark: #FB8500;
-            }"))
-    (div (:class "bg-yellow-dark w-screen h-screen" ))
+            }")
+     (script (:src "./script.js")))
+    (div (:class "bg-yellow-dark w-screen h-screen")
+         (div (:class "w-full h-full p-8 box-border")
+              (div (:class "relative size-full")
+                  (div (:class "bg-blue-dark size-full
+                        rounded-[2rem] absolute flex flex-col")
+                        (div (:class "size-fit m-auto text-yellow-light
+                              font-mono text-black text-8xl")
+                             "Team pHish"))
+                  (div (:class "border-blue size-full
+                        rounded-[2rem] border-8 absolute"))
+                  (div (:class "border-blue-light size-full
+                        rounded-[2rem] border-8 absolute top-[-0.1rem] right-[0.1rem]"))))
+    )
     (sidebar)
 ))
