@@ -62,11 +62,13 @@
                  :style ,(format nil "clip-path: ~a;" (generate-wave-clip-path
                                                 :amplitude 5
                                                 :base-x 20))))
+           (div (:class "size-full pl-30 py-10 flex flex-col")
+                ,(generate-header-buttons *page-content*))
            )
 ))
 
 (write-page-to-file "index.html"
-  `(page "Example"
+  `(page "Team pHish site"
     ((script (:src "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"))
      (style (:type "text/tailwindcss") "@theme {
             --color-*: initial;
@@ -80,12 +82,12 @@
             --color-yellow-dark: #FB8500;
             }")
      (script (:src "./script.js")))
-    (div (:class "bg-yellow-dark w-screen h-screen")
-         (div (:class "w-full h-full p-8 box-border")
+    (div (:class "bg-black w-screen h-screen")
+         (div (:class "w-full h-full p-32 box-border")
               (div (:class "relative size-full")
                   (div (:class "bg-blue-dark size-full
                         rounded-[2rem] absolute flex flex-col")
-                        (div (:class "size-fit m-auto text-yellow-light
+                        (div (:class "size-fit m-auto text-blue-light
                               font-mono text-black text-8xl")
                              "Team pHish"))
                   (div (:class "border-blue size-full
@@ -95,47 +97,71 @@
     )
     (div (:class "bg-black py-8 flex flex-row")
          (div (:class "flex m-auto flex-col w-[60%] flex-none")
-               (div (:class "w-full h-fit font-mono text-white text-l
-                            flex-initial") "Here is test text")
+               (p (:class "w-full h-fit font-mono text-white text-2xl
+                            flex-initial font-medium underline
+                            underline-offset-4") "Heading 1")
+               (p (:class "w-full h-fit font-mono text-white text-l
+                            flex-initial text-wrap whitespace-normal")
+                            "Here is test text")
               ,(generate-paragraph-divs *page-content*))
           )
     (sidebar)
 ))
 
-(defun generate-paragraph-divs (parsed-data &key (header-fn nil))
-  "Generate div s-expressions for all paragraphs in parsed data.
-   
-   Parameters:
-   - PARSED-DATA: The nested list structure from parse-text-file
-   - HEADER-FN: Optional function called for each section header.
-                Takes (heading-text section-index) and returns an s-expression
-                to insert before that section's paragraphs.
-   
-   Returns a list of s-expressions (paragraphs + optional headers)."
+(defun generate-header-buttons (parsed-data)
   (let ((result nil))
     (loop for section in parsed-data
           for section-idx from 0
           do (let ((heading (first section))
                    (paragraphs (rest section)))
                
-               ;; If header-fn provided, call it for this section
-               (when header-fn
-                 (let ((header-expr (funcall header-fn heading section-idx)))
-                   (when header-expr
-                     (push header-expr result))))
+              (push `(div (:class "relative w-80% h-[3rem] my-1")
+                          (button (:type "button"
+                                    :class "bg-blue h-full w-full
+                                            rounded-xl absolute cursor-pointer"
+                                    :onclick ,(format nil "const header = document.getElementById(\"head-~a\");
+                                                      header.scrollIntoView();" section-idx))
+                                  (p (:class "text-blue-light font-mono text-center")
+                                     ,(format nil "Section ~a" section-idx)))
+                          (button (:type "button"
+                                    :class "border-blue h-full w-full
+                                            rounded-xl cursor-pointer border-8 absolute"
+                                    :onclick ,(format nil "const header = document.getElementById(\"head-~a\");
+                                                      header.scrollIntoView();" section-idx)))
+                          (button (:type "button"
+                                    :class "border-blue-light h-full w-full
+                                            rounded-xl cursor-pointer border-8 absolute top-[-0.1rem] right-[0.1rem]"
+                                    :onclick ,(format nil "const header = document.getElementById(\"head-~a\");
+                                                      header.scrollIntoView();" section-idx))))
+                        result)))
+    (nreverse result)))
+
+(defun generate-paragraph-divs (parsed-data)
+  (let ((result nil))
+    (loop for section in parsed-data
+          for section-idx from 0
+          do (let ((heading (first section))
+                   (paragraphs (rest section)))
                
-               ;; Generate div for each paragraph
+               ; (when header-fn
+               ;   (let ((header-expr (funcall header-fn heading section-idx)))
+               ;     (when header-expr
+               ;       (push header-expr result))))
+
+               (push `(p (:class "w-full h-fit font-mono text-white text-2xl
+                                flex-initial font-medium underline
+                                underline-offset-4"
+                          :id ,(format nil "head-~a" section-idx)) ,heading)
+                        result)
+               
                (dolist (paragraph paragraphs)
-                 (push `(div (:class "w-full h-fit font-mono text-white text-l flex-initial")
+                 (push `(p (:class "w-full h-fit font-mono text-white text-l
+                                      flex-initial text-wrap whitespace-normal")
                               ,paragraph)
                        result))))
     (nreverse result)))
 
 (defun parse-text-file (filepath)
-  "Read a text file and parse it into nested lists.
-   Lines starting with # are headings that create new sections.
-   Each section is a list with the heading (without #) as first element,
-   followed by paragraph lines until the next heading."
   (with-open-file (stream filepath :direction :input)
     (let ((sections nil)
           (current-section nil))
@@ -144,37 +170,28 @@
             while line
             do (let ((trimmed (string-trim '(#\Space #\Tab) line)))
                  (cond
-                   ;; Empty lines are ignored
                    ((string= trimmed "")
                     nil)
                    
-                   ;; Line starts with # - it's a heading
                    ((and (> (length trimmed) 0)
                          (char= (char trimmed 0) #\#))
-                    ;; Save previous section if exists
                     (when current-section
                       (push (nreverse current-section) sections))
-                    ;; Start new section with heading (strip # and whitespace)
                     (let ((heading (string-trim '(#\Space #\Tab) 
                                                 (subseq trimmed 1))))
                       (setf current-section (list heading))))
                    
-                   ;; Regular line - add to current section
                    (t
                     (if current-section
                         (push trimmed current-section)
-                        ;; If no heading yet, create section with empty heading
                         (setf current-section (list "" trimmed)))))))
       
-      ;; Don't forget the last section
       (when current-section
         (push (nreverse current-section) sections))
       
       (nreverse sections))))
 
 (defun load-text-file-to-parameter (filepath parameter-name)
-  "Load a text file and bind the parsed result to a defparameter.
-   PARAMETER-NAME should be a symbol."
   (let ((parsed-data (parse-text-file filepath)))
     (eval `(defparameter ,parameter-name ',parsed-data))
     parsed-data))
