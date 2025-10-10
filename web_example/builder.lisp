@@ -82,7 +82,7 @@
             --color-yellow-dark: #FB8500;
             }")
      (script (:src "./script.js")))
-    (div (:class "bg-black w-screen h-screen")
+    (div (:class "bg-yellow-dark w-screen h-screen")
          (div (:class "w-full h-full p-32 box-border")
               (div (:class "relative size-full")
                   (div (:class "bg-blue-dark size-full
@@ -97,12 +97,12 @@
     )
     (div (:class "bg-black py-8 flex flex-row")
          (div (:class "flex m-auto flex-col w-[60%] flex-none")
-               (p (:class "w-full h-fit font-mono text-white text-2xl
-                            flex-initial font-medium underline
-                            underline-offset-4") "Heading 1")
-               (p (:class "w-full h-fit font-mono text-white text-l
-                            flex-initial text-wrap whitespace-normal")
-                            "Here is test text")
+               ; (p (:class "w-full h-fit font-mono text-white text-2xl
+               ;              flex-initial font-medium underline
+               ;              underline-offset-4") "Heading 1")
+               ; (p (:class "w-full h-fit font-mono text-white text-l
+               ;              flex-initial text-wrap whitespace-normal")
+               ;              "Here is test text")
               ,(generate-paragraph-divs *page-content*))
           )
     (sidebar)
@@ -122,7 +122,7 @@
                                     :onclick ,(format nil "const header = document.getElementById(\"head-~a\");
                                                       header.scrollIntoView();" section-idx))
                                   (p (:class "text-blue-light font-mono text-center")
-                                     ,(format nil "Section ~a" section-idx)))
+                                     ,(format nil "Section ~a" (+ section-idx 1))))
                           (button (:type "button"
                                     :class "border-blue h-full w-full
                                             rounded-xl cursor-pointer border-8 absolute"
